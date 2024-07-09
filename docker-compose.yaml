@@ -1,0 +1,54 @@
+version: '3.8'
+
+services: 
+  nodejs:
+    build: 
+      context: ./nodejs
+      dockerfile: Dockerfile.prod
+    image: chrislcontrol/nodejs:prod
+    container_name: nodejs
+    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "node", "index.js"]
+    depends_on: 
+      - db
+    networks: 
+      - nodenet
+
+  nginx:
+    build: 
+      context: ./nginx
+    image: chrislcontrol/nginx:prod
+    container_name: nginx
+    networks: 
+      - nodenet
+    ports: 
+      - "8080:80"
+    depends_on:
+      - nodejs
+
+  db:
+    container_name: db
+    command: --innodb-use-native-aio=0
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'nodedb'
+      MYSQL_USER: 'mysql'
+      MYSQL_PASSWORD: 'mysql'
+      MYSQL_ROOT_PASSWORD: 'mysql'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mydb:/var/lib/mysql
+    
+    networks:
+      - nodenet
+
+networks: 
+  nodenet:
+    driver: bridge   
+
+volumes:
+  mydb:
+    driver: local
