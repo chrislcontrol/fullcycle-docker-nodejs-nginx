@@ -37,7 +37,7 @@ const requestHandler = (req, res) => {
             const peoples = result.map(people => {
                 return `<div>- ${people.name}:${people.id}</div>`
             })
-            res.send('<h1>Full Cycle</h1>' + peoples.join(""))
+            res.send('<h1>Full Cycle!</h1>' + peoples.join(""))
             connection.end()
         }
     )

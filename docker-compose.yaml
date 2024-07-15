@@ -4,14 +4,15 @@ services:
   nodejs:
     build: 
       context: ./nodejs
-      dockerfile: Dockerfile.prod
     image: chrislcontrol/nodejs:prod
     container_name: nodejs
-    entrypoint: ["./wait-for-it.sh", "db:3306", "--", "node", "index.js"]
+    entrypoint: sh -c "chmod +x /usr/src/app/start.sh && wait-for db:3306 -t 40 -- ./start.sh"
     depends_on: 
       - db
     networks: 
       - nodenet
+    volumes:
+      - ./nodejs:/usr/src/app
 
   nginx:
     build: 
